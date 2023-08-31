@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObjects
+namespace FPTUMerchAPI.Model
 {
     [FirestoreData]
     public class Product

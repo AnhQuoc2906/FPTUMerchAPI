@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+﻿using FPTUMerchAPI.Model;
 using FireSharp.Extensions;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
