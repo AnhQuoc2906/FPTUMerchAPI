@@ -24,7 +24,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order");
+                Query Qref = database.Collection("Order").OrderBy("CreateDate");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
@@ -64,7 +64,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order");
+                Query Qref = database.Collection("Order").OrderBy("CreateDate");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
@@ -103,7 +103,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order");
+                Query Qref = database.Collection("Order").OrderBy("CreateDate");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
@@ -134,6 +134,7 @@ namespace FPTUMerchAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         // GET api/<OrdersController>/5
         [HttpGet("{OrderId}")]
         public async Task<ActionResult> GetOrdersByOrderID(string OrderId)
@@ -183,7 +184,37 @@ namespace FPTUMerchAPI.Controllers
             {
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
-                string documentID = Guid.NewGuid().ToString();
+                bool checkOrderID = false; // Check if order ID exist
+                string documentID = "";
+                //CHECK IF NEW ORDER ID EXISTS
+                do
+                {
+                    documentID = generateOrderID();
+                    Query qRefOrder = database.Collection("Order");
+                    QuerySnapshot qSnapOrder = await qRefOrder.GetSnapshotAsync();
+                    if(qSnapOrder.Count > 0)
+                    {
+                        foreach (DocumentSnapshot docSnapOrder in qSnapOrder)
+                        {
+                            if (docSnapOrder.Id == documentID)
+                            {
+                                checkOrderID = false;
+                                break;
+                            }
+                            else
+                            {
+                                checkOrderID = true;
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        checkOrderID = true;
+                        continue;
+                    }
+                } while (checkOrderID == false);
+                //---------------------------------------------------------------------
                 DocumentReference docRef = database.Collection("Order").Document(documentID);
                 var specified = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                 float totalPrice = 0;
@@ -208,34 +239,6 @@ namespace FPTUMerchAPI.Controllers
                         {
                             return BadRequest("The product is not correct, please try again.");
                         }
-                    }
-                    /*UPDATE PRODUCT'S QUANTITY AFTER CHECK IF IT IS EXIST*/
-                    foreach (var item in Order.orderDetails)
-                    {
-                        DocumentReference docRefProduct = database.Collection("Product").Document(item.ProductID);
-                        DocumentSnapshot docSnapProduct = await docRefProduct.GetSnapshotAsync();
-                        Product product = docSnapProduct.ConvertTo<Product>();
-                        product.CurrentQuantity -= item.Amount;
-                        Dictionary<string, object> updateProduct = new Dictionary<string, object>() {
-                        { "ProductName", product.ProductName},
-                        { "ProductLink", product.ProductLink},
-                        { "ProductDescription", product.ProductDescription},
-                        { "Quantity", product.Quantity},
-                        { "CurrentQuantity", product.CurrentQuantity},
-                        //{ "IsActive", true},
-                        { "Price", product.Price},
-                        { "Note", product.Note}
-                    };
-                        //UPDATE PRODUCT'S STATUS AFTER SUBTRACT AMOUNT FROM ORDER
-                        if (product.CurrentQuantity > 0)
-                        {
-                            updateProduct.Add("IsActive", true);
-                        }
-                        else
-                        {
-                            updateProduct.Add("IsActive", false);
-                        }
-                        docRefProduct.SetAsync(updateProduct);
                     }
                     /*CHECK IF DISCOUNT CODE CORRECT*/
                     if (Order.DiscountCodeID != null && Order.DiscountCodeID != "" && Order.DiscountCodeID.Length != 0)
@@ -278,11 +281,14 @@ namespace FPTUMerchAPI.Controllers
                         { "TotalPrice", totalPrice},
                         { "CreateDate", specified.ToTimestamp()},
                         { "Note", Order.Note },
+                        { "EarningMethod", Order.EarningMethod},
+                        { "Payments", Order.Payments },
                         { "Status", true},
                         { "PaidStatus", false },
+                        { "Shipper", null},
                         { "ShippedStatus", false}
                     };
-                    docRef.SetAsync(data);
+                    await docRef.SetAsync(data);
                     CollectionReference coll = docRef.Collection("OrderDetail");
                     Dictionary<string, object> orderDetailList = new Dictionary<string, object>();
                     /*ADD ORDER DETAIL*/
@@ -292,7 +298,7 @@ namespace FPTUMerchAPI.Controllers
                         orderDetailList.Add("Amount", item.Amount);
                         orderDetailList.Add("Note", item.Note);
                         orderDetailList.Add("CreateDate", specified.ToTimestamp());
-                        coll.AddAsync(orderDetailList);
+                        await coll.AddAsync(orderDetailList);
                         orderDetailList = new Dictionary<string, object>();
                     }
                     return Ok();
@@ -307,6 +313,7 @@ namespace FPTUMerchAPI.Controllers
 
         // PUT api/<OrdersController>/5
         // Update Order's Entities, Not Order Detail's Entities
+        // Update includes: Name, Phone Number, Email, Address, Payments Shipper
         [HttpPut("{OrderId}")]
         public async Task<ActionResult> Put(string OrderId, [FromBody] Orders order)
         {
@@ -316,7 +323,6 @@ namespace FPTUMerchAPI.Controllers
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 DocumentReference docRef = database.Collection("Order").Document(OrderId);
                 var specified = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-                float? totalPrice = 0;
                 //GET THE CURRENT ORDER TOTAL PRICE
                 DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
                 if (docSnap.Exists)
@@ -332,11 +338,14 @@ namespace FPTUMerchAPI.Controllers
                         { "TotalPrice", orderTotalPrice.TotalPrice},
                         { "CreateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
-                        { "Status", orderTotalPrice.Status},
-                        { "PaidStatus", orderTotalPrice.PaidStatus},
-                        { "ShippedStatus", orderTotalPrice.ShippedStatus }
+                        { "EarningMethod", order.EarningMethod},
+                        { "Payments", order.Payments },
+                        { "Status", order.Status},
+                        { "PaidStatus", order.PaidStatus},
+                        { "Shipper", order.Shipper},
+                        { "ShippedStatus", order.ShippedStatus }
                     };
-                    docRef.SetAsync(data);
+                    await docRef.SetAsync(data);
                     return Ok();
                 }
                 else
@@ -344,6 +353,52 @@ namespace FPTUMerchAPI.Controllers
                     return BadRequest("The order not exist");
                 }
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // PUT api/<OrdersController>/5
+        [HttpPut("{OrderId}/{Shipper}")]
+        public async Task<ActionResult> AddShipper(string OrderId, string Shipper)
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
+                FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
+                DocumentReference docRef = database.Collection("Order").Document(OrderId);
+                var specified = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
+                if (docSnap.Exists)
+                {
+                    Orders order = docSnap.ConvertTo<Orders>();
+                    /*UPDATE ORDER BASIC DETAILS*/
+                    Dictionary<string, object> data = new Dictionary<string, object>()
+                    {
+                        { "DiscountCodeID", order.DiscountCodeID },
+                        { "OrdererName", order.OrdererName},
+                        { "OrdererPhoneNumber", order.OrdererPhoneNumber},
+                        { "OrdererEmail", order.OrdererEmail},
+                        { "DeliveryAddress", order.DeliveryAddress},
+                        { "TotalPrice", order.TotalPrice},
+                        { "CreateDate", specified.ToTimestamp()},
+                        { "Note", order.Note },
+                        { "EarningMethod", order.EarningMethod},
+                        { "Payments", order.Payments },
+                        { "Status", order.Status},
+                        { "PaidStatus", order.PaidStatus},
+                        { "Shipper", Shipper},
+                        { "ShippedStatus", order.ShippedStatus}
+                    };
+                    await docRef.SetAsync(data);
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("The order not exist");
+                }
             }
             catch (Exception ex)
             {
@@ -376,7 +431,10 @@ namespace FPTUMerchAPI.Controllers
                         { "TotalPrice", order.TotalPrice},
                         { "CreateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
+                        { "EarningMethod", order.EarningMethod},
+                        { "Payments", order.Payments },
                         { "Status", order.Status},
+                        { "Shipper", order.Shipper},
                         { "ShippedStatus", order.ShippedStatus}
                     };
                     if (order.PaidStatus == true)
@@ -415,9 +473,9 @@ namespace FPTUMerchAPI.Controllers
                         {
                             discountCodeUpdate.Add("KPI", discountCode.KPI);
                         }
-                        docRefDiscountID.SetAsync(discountCodeUpdate);
+                        await docRefDiscountID.SetAsync(discountCodeUpdate);
                     }
-                    docRef.SetAsync(data);
+                    await docRef.SetAsync(data);
                     return Ok();
                 }
                 else
@@ -454,8 +512,11 @@ namespace FPTUMerchAPI.Controllers
                         { "TotalPrice", order.TotalPrice},
                         { "CreateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
+                        { "EarningMethod", order.EarningMethod},
+                        { "Payments", order.Payments },
                         { "Status", order.Status},
-                        { "PaidStatus", order.PaidStatus}
+                        { "PaidStatus", order.PaidStatus},
+                        { "Shipper", order.Shipper },
                     };
                     if (order.ShippedStatus == true)
                     {
@@ -469,7 +530,7 @@ namespace FPTUMerchAPI.Controllers
                     {
                         data.Add("ShippedStatus", null);
                     }
-                    docRef.SetAsync(data);
+                    await docRef.SetAsync(data);
                     return Ok();
                 }
                 else
@@ -505,11 +566,14 @@ namespace FPTUMerchAPI.Controllers
                         { "TotalPrice", order.TotalPrice},
                         { "CreateDate", order.CreateDate},
                         { "Note", order.Note },
+                        { "EarningMethod", order.EarningMethod},
+                        { "Payments", order.Payments },
                         { "Status", false}, //TRUE: Not cancelled, FALSE: cancelled
                         { "PaidStatus", order.PaidStatus},
+                        { "Shipper", order.Shipper},
                         { "ShippedStatus", order.ShippedStatus }
                     };
-                    docRef.SetAsync(data);
+                    await docRef.SetAsync(data);
                     //UPDATE PRODUCT AFTER DELETE ORDER
                     Query collRefProduct = database.Collection("Product");
                     QuerySnapshot qSnapProduct = await collRefProduct.GetSnapshotAsync();
@@ -547,7 +611,7 @@ namespace FPTUMerchAPI.Controllers
                             updateProduct.Add("IsActive", false);
                         }
                         DocumentReference docRefProduct = database.Collection("Product").Document(product.ProductID);
-                        docRefProduct.SetAsync(updateProduct);
+                        await docRefProduct.SetAsync(updateProduct);
                     }
                     return Ok();
                 }
@@ -561,5 +625,18 @@ namespace FPTUMerchAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [NonAction]
+        public string generateOrderID()
+        {
+            string result = "FM2023";
+            Random rnd = new Random();
+            for(int i=0; i <= 4; i++)
+            {
+                result += rnd.Next(0, 10).ToString(); // returns random integers >= 0 and < 9
+            }
+            return result;
+        }
+
     }
 }

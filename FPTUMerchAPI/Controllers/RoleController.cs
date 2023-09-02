@@ -146,7 +146,7 @@ namespace FPTUMerchAPI.Controllers
                 DocumentSnapshot snap = await docRef.GetSnapshotAsync();
                 if (snap.Exists)
                 {
-                    docRef.DeleteAsync();
+                    await docRef.DeleteAsync();
                     return Ok();
                 }
                 else

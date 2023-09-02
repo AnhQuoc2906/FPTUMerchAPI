@@ -81,12 +81,12 @@ namespace FPTUMerchAPI.Controllers
         }
 
         // POST api/<DiscountCodeController>
-        [HttpPost]
-        public IActionResult Post()
+        [HttpPost("{DiscountCodeID}")]
+        public IActionResult Post(string DiscountCodeID)
         {
             try
             {
-                string discountCode = generateRandomCode();
+                string discountCode = DiscountCodeID;
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 DocumentReference coll = database.Collection("DiscountCode").Document(discountCode);
@@ -231,7 +231,7 @@ namespace FPTUMerchAPI.Controllers
                 DocumentSnapshot snap = await docRef.GetSnapshotAsync();
                 if (snap.Exists)
                 {
-                    docRef.DeleteAsync();
+                    await docRef.DeleteAsync();
                     return Ok();
                 }
                 else
@@ -261,5 +261,6 @@ namespace FPTUMerchAPI.Controllers
             }
             return str;
         }
+
     }
 }

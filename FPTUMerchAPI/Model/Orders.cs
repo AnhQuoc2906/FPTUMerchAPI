@@ -30,11 +30,18 @@ namespace FPTUMerchAPI.Model
         [FirestoreProperty]
         public string? Note { get; set; }
         [FirestoreProperty]
+        //Hình thức nhận hàng: 1. Tại quầy, 2: Shipping
+        public int EarningMethod { get; set; }
+        [FirestoreProperty]
+        //Hình thức thanh toán: 1. Tiền mặt, 2: Chuyển khoản
+        public int? Payments { get; set; }
+        [FirestoreProperty]
         //TRUE: Not cancelled, FALSE: cancelled
         public bool? Status { get; set; }
         [FirestoreProperty]
         //TRUE: Already Paid, FALSE: Not Paid
         public bool? PaidStatus { get; set; }
+        public string? Shipper { get; set; }
         //TRUE: Already Shipped, FALSE: Not Shipped
         public bool? ShippedStatus { get; set; }
         [FirestoreProperty]

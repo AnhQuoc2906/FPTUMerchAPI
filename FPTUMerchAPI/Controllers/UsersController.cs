@@ -23,7 +23,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Users> usersList = new List<Users>();
-                Query Qref = database.Collection("Users");
+                Query Qref = database.Collection("Users").OrderBy("RoleID");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
 
                 foreach (DocumentSnapshot docsnap in snap)
@@ -226,7 +226,8 @@ namespace FPTUMerchAPI.Controllers
                                             continue;
                                         }
                                     }
-                                } else if(roleName == "Admin")
+                                } 
+                                else if(roleName == "Admin" || roleName == "Logistic")
                                 {// If the new user has the role "Admin"
                                     ableToCreate = true;
                                     continue;
@@ -306,9 +307,9 @@ namespace FPTUMerchAPI.Controllers
                         newUser.Add("DiscountCodeID", null);
                     } else if(roleName == "Saler")
                     {// If the new user has the role "Saler"
-                        newUser.Add("DiscountCodeID", user.RoleID);
+                        newUser.Add("DiscountCodeID", user.DiscountCodeID);
                     }
-                    collRefUser.AddAsync(newUser);
+                    await collRefUser.AddAsync(newUser);
                     return Ok(newUser.ToJson());
                 }
                 else
@@ -330,7 +331,42 @@ namespace FPTUMerchAPI.Controllers
             {
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
-                return Ok();
+                DocumentReference docRefUser = database.Collection("Users").Document(userId);
+                DocumentSnapshot docSnapUser = await docRefUser.GetSnapshotAsync();
+                if (docSnapUser.Exists)
+                { // If user ID Exist, only update fullName, email, password, note
+                    Users currentUser = docSnapUser.ConvertTo<Users>();
+                    Dictionary<string, object> updateUser = new Dictionary<string, object>()
+                    {
+                        {"FullName", user.FullName },
+                        {"Email", user.Email },
+                        {"Password", user.Password },
+                        {"Note", user.Note },
+                        {"RoleID", currentUser.RoleID }
+                    };
+                    //Check if new email already exist:
+                    Query qRefUsers = database.Collection("Users");
+                    QuerySnapshot qSnapUsers = await qRefUsers.GetSnapshotAsync();
+                    foreach(DocumentSnapshot docSnapUserCheck in qSnapUsers)
+                    {
+                        Users userCheck = docSnapUserCheck.ConvertTo<Users>();
+                        if(userCheck.Email == user.Email)
+                        { // if new email already exist
+                            return BadRequest("The new email is currently exist");
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    //----------------------------------------------------
+                    await docRefUser.SetAsync(updateUser);
+                    return Ok(updateUser.ToJson());
+                }
+                else
+                { // If user ID not exist
+                    return NotFound("User ID not exist");
+                }
             }
             catch (Exception ex)
             {
@@ -350,7 +386,7 @@ namespace FPTUMerchAPI.Controllers
                 DocumentSnapshot snap = await docRef.GetSnapshotAsync();
                 if (snap.Exists)
                 {
-                    docRef.DeleteAsync();
+                    await docRef.DeleteAsync();
                     return Ok();
                 }
                 else
