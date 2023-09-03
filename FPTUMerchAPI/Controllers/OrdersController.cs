@@ -574,45 +574,6 @@ namespace FPTUMerchAPI.Controllers
                         { "ShippedStatus", order.ShippedStatus }
                     };
                     await docRef.SetAsync(data);
-                    //UPDATE PRODUCT AFTER DELETE ORDER
-                    Query collRefProduct = database.Collection("Product");
-                    QuerySnapshot qSnapProduct = await collRefProduct.GetSnapshotAsync();
-                    foreach (DocumentSnapshot docSnapProduct in qSnapProduct)
-                    {
-                        Product product = docSnapProduct.ConvertTo<Product>();
-                        product.ProductID = docSnapProduct.Id;
-                        Query collRefOrderDetails = database.Collection("Order").Document(OrderId).Collection("OrderDetail");
-                        QuerySnapshot qSnapOrderDetails = await collRefOrderDetails.GetSnapshotAsync();
-                        foreach (DocumentSnapshot docSnapOrderDetails in qSnapOrderDetails)
-                        {
-                            OrderDetail od = docSnapOrderDetails.ConvertTo<OrderDetail>();
-                            if (od.ProductID == product.ProductID)
-                            {
-                                product.CurrentQuantity += od.Amount;
-                            }
-                        }
-                        Dictionary<string, object> updateProduct = new Dictionary<string, object>()
-                        {
-                            { "ProductName", product.ProductName},
-                            { "ProductLink", product.ProductLink},
-                            { "ProductDescription", product.ProductDescription},
-                            { "Quantity", product.Quantity},
-                            { "CurrentQuantity", product.CurrentQuantity},
-                            //{ "IsActive", true},
-                            { "Price", product.Price},
-                            { "Note", product.Note}
-                        };
-                        if(product.CurrentQuantity > 0)
-                        {
-                            updateProduct.Add("IsActive", true);
-                        }
-                        else
-                        {
-                            updateProduct.Add("IsActive", false);
-                        }
-                        DocumentReference docRefProduct = database.Collection("Product").Document(product.ProductID);
-                        await docRefProduct.SetAsync(updateProduct);
-                    }
                     return Ok();
                 }
                 else

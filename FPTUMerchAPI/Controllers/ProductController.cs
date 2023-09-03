@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace FPTUMerchAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -77,6 +77,42 @@ namespace FPTUMerchAPI.Controllers
             }
         }
 
+        [HttpGet("{productType}")]
+        public async Task<ActionResult> GetByProductType(int productType)
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
+                FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
+                CollectionReference coll = database.Collection("Product");
+                List<Product> productList = new List<Product>();
+                Query Qref = database.Collection("Product");
+                QuerySnapshot snap = await Qref.GetSnapshotAsync();
+
+                foreach (DocumentSnapshot docsnap in snap)
+                {
+                    if (docsnap.Exists)
+                    {
+                        Product product = docsnap.ConvertTo<Product>();
+                        product.ProductID = docsnap.Id;
+                        productList.Add(product);
+                    }
+                }
+                if (productType == null || productType.Equals("") || productType == 0)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Ok(productList.Where(x => x.ProductType == productType));
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Product product)
         {
@@ -97,7 +133,7 @@ namespace FPTUMerchAPI.Controllers
                         { "ProductLink", product.ProductLink},
                         { "ProductDescription", product.ProductDescription},
                         { "Quantity", product.Quantity},
-                        { "CurrentQuantity", product.Quantity},
+                        { "ProductType", product.ProductType},
                         { "IsActive", true},
                         { "Price", product.Price},
                         { "Note", product.Note}
@@ -139,23 +175,14 @@ namespace FPTUMerchAPI.Controllers
                 DocumentSnapshot snap = await docRef.GetSnapshotAsync();
                 if (snap.Exists)
                 {
-                    bool status;
-                    if (product.CurrentQuantity > 0)
-                    { // If the product still in stock
-                        status = true;
-                    }
-                    else
-                    { // If the product not in stock
-                        status = false;
-                    }
                     Dictionary<string, object> data = new Dictionary<string, object>()
                     {
                         { "ProductName", product.ProductName},
                         { "ProductLink", product.ProductLink},
                         { "ProductDescription", product.ProductDescription},
                         { "Quantity", product.Quantity},
-                        { "CurrentQuantity", product.CurrentQuantity},
-                        { "IsActive", status},
+                        { "ProductType", product.ProductType},
+                        { "IsActive", product.IsActive},
                         { "Price", product.Price},
                         { "Note", product.Note}
                     };

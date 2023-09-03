@@ -171,7 +171,6 @@ namespace FPTUMerchAPI.Controllers
                                         { "ProductLink", product.ProductLink},
                                         { "ProductDescription", product.ProductDescription},
                                         { "Quantity", product.Quantity},
-                                        { "CurrentQuantity", product.CurrentQuantity},
                                         { "Price", product.Price},
                                         { "Note", product.Note}
                                     };
@@ -179,38 +178,13 @@ namespace FPTUMerchAPI.Controllers
                                 { // 1.1.1: EXIST IN ORDER
                                     DocumentReference docRefOrderDetail = database.Collection("Order").Document(OrderId)
                                         .Collection("OrderDetail").Document(tmpOrderDetailId);
-                                    //Product currentProduct = docSnapProduct.ConvertTo<Product>();
-                                    //int? oldCurrentQuantity = currentProduct.CurrentQuantity;
-                                    //currentProduct.CurrentQuantity = currentProduct.CurrentQuantity + tmpOrderDetailAmount - orderDetail.Amount;
-                                    //updateProduct.Add("CurrentQuantity", currentProduct.CurrentQuantity);
-                                    //if (product.CurrentQuantity > 0)
-                                    //{
-                                    //    updateProduct.Add("IsActive", true);
-                                    //}
-                                    //else
-                                    //{
-                                    //    updateProduct.Add("IsActive", false);
-                                    //}
                                     await docRefOrderDetail.SetAsync(newOrderDetail);
-                                    //DocumentReference docRefProduct = database.Collection("Product").Document(docSnapProduct.Id);
-                                    //await docRefProduct.SetAsync(updateProduct);
                                     break;
                                 }
                                 else
                                 {
                                     CollectionReference collRefOrderDetail = database.Collection("Order").Document(OrderId).Collection("OrderDetail");
                                     await collRefOrderDetail.AddAsync(newOrderDetail);
-                                    //updateProduct.Add("CurrentQuantity", product.CurrentQuantity -= orderDetail.Amount);
-                                    //if (product.CurrentQuantity > 0)
-                                    //{
-                                    //    updateProduct.Add("IsActive", true);
-                                    //}
-                                    //else
-                                    //{
-                                    //    updateProduct.Add("IsActive", false);
-                                    //}
-                                    //DocumentReference docRefProduct = database.Collection("Product").Document(docSnapProduct.Id);
-                                    //await docRefProduct.SetAsync(updateProduct);
                                     break;
                                 }
                             }
@@ -218,26 +192,6 @@ namespace FPTUMerchAPI.Controllers
                             { // IF ORDER DON'T HAVE ANY ORDER DETAILS
                                 CollectionReference collRefOrderDetail = database.Collection("Order").Document(OrderId).Collection("OrderDetail");
                                 await collRefOrderDetail.AddAsync(newOrderDetail);
-                                //Dictionary<string, object> updateProduct = new Dictionary<string, object>()
-                                //    {
-                                //    { "ProductName", product.ProductName},
-                                //    { "ProductLink", product.ProductLink},
-                                //    { "ProductDescription", product.ProductDescription},
-                                //    { "Quantity", product.Quantity},
-                                //    { "CurrentQuantity", product.CurrentQuantity},
-                                //    { "Price", product.Price},
-                                //    { "Note", product.Note}
-                                //};
-                                //if (product.CurrentQuantity > 0)
-                                //{
-                                //    updateProduct.Add("IsActive", true);
-                                //}
-                                //else
-                                //{
-                                //    updateProduct.Add("IsActive", false);
-                                //}
-                                //DocumentReference docRefProduct = database.Collection("Product").Document(docSnapProduct.Id);
-                                //docRefProduct.SetAsync(updateProduct);
                                 break;
                             }
                         }

@@ -24,7 +24,7 @@ namespace FPTUMerchAPI.Model
         [FirestoreProperty]
         public int Quantity { get; set; } // Số lượng hàng ban đầu
         [FirestoreProperty]
-        public int? CurrentQuantity { get; set; } // Số lượng hàng hiện tại
+        public int ProductType { get; set; } // Loại hàng: 1: Hàng lẻ, 2: Hàng combo
         [FirestoreProperty]
         public bool? IsActive { get; set; } // TRUE: Đang bán, FALSE: Không bán
         [FirestoreProperty]
