@@ -71,7 +71,7 @@ namespace FPTUMerchAPI.Controllers
                 }
                 else
                 {
-                    return Ok(discountCodeList.Where(x => x.DiscountCodeID.Contains(id)));
+                    return Ok(discountCodeList.Where(x => x.DiscountCodeID.Equals(id,StringComparison.OrdinalIgnoreCase)));
                 }
             }
             catch (Exception ex)
