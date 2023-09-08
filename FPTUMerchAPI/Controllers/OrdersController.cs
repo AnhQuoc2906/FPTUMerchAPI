@@ -88,7 +88,7 @@ namespace FPTUMerchAPI.Controllers
                         ordersList.Add(order);
                     }
                 }
-                return Ok(ordersList.Where(x=> x.Status.Equals(true)));
+                return Ok(ordersList.Where(x=> x.Status.Equals(1) || x.Status.Equals(2) || x.Status.Equals(3)));
             }
             catch (Exception ex)
             {
@@ -283,10 +283,9 @@ namespace FPTUMerchAPI.Controllers
                         { "Note", Order.Note },
                         { "EarningMethod", Order.EarningMethod},
                         { "Payments", Order.Payments },
-                        { "Status", true},
+                        { "Status", 1},
                         { "PaidStatus", false },
-                        { "Shipper", null},
-                        { "ShippedStatus", false}
+                        { "Shipper", ""}
                     };
                     await docRef.SetAsync(data);
                     CollectionReference coll = docRef.Collection("OrderDetail");
@@ -343,7 +342,6 @@ namespace FPTUMerchAPI.Controllers
                         { "Status", order.Status},
                         { "PaidStatus", order.PaidStatus},
                         { "Shipper", order.Shipper},
-                        { "ShippedStatus", order.ShippedStatus }
                     };
                     await docRef.SetAsync(data);
                     return Ok();
@@ -390,7 +388,6 @@ namespace FPTUMerchAPI.Controllers
                         { "Status", order.Status},
                         { "PaidStatus", order.PaidStatus},
                         { "Shipper", Shipper},
-                        { "ShippedStatus", order.ShippedStatus}
                     };
                     await docRef.SetAsync(data);
                     return Ok();
@@ -435,7 +432,6 @@ namespace FPTUMerchAPI.Controllers
                         { "Payments", order.Payments },
                         { "Status", order.Status},
                         { "Shipper", order.Shipper},
-                        { "ShippedStatus", order.ShippedStatus}
                     };
                     if (order.PaidStatus == true)
                     {
@@ -488,62 +484,6 @@ namespace FPTUMerchAPI.Controllers
             }
         }
 
-        [HttpPut("{OrderId}")]
-        public async Task<ActionResult> ShippedConfirm(string OrderId)
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
-                FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
-                DocumentReference docRef = database.Collection("Order").Document(OrderId);
-                var specified = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-                DocumentSnapshot docSnap = await docRef.GetSnapshotAsync();
-                if (docSnap.Exists)
-                {
-                    Orders order = docSnap.ConvertTo<Orders>();
-                    /*UPDATE ORDER BASIC DETAILS*/
-                    Dictionary<string, object> data = new Dictionary<string, object>()
-                    {
-                        { "DiscountCodeID", order.DiscountCodeID },
-                        { "OrdererName", order.OrdererName},
-                        { "OrdererPhoneNumber", order.OrdererPhoneNumber},
-                        { "OrdererEmail", order.OrdererEmail},
-                        { "DeliveryAddress", order.DeliveryAddress},
-                        { "TotalPrice", order.TotalPrice},
-                        { "CreateDate", specified.ToTimestamp()},
-                        { "Note", order.Note },
-                        { "EarningMethod", order.EarningMethod},
-                        { "Payments", order.Payments },
-                        { "Status", order.Status},
-                        { "PaidStatus", order.PaidStatus},
-                        { "Shipper", order.Shipper },
-                    };
-                    if (order.ShippedStatus == true)
-                    {
-                        data.Add("ShippedStatus", false);
-                    }
-                    else if (order.ShippedStatus == false)
-                    {
-                        data.Add("ShippedStatus", true);
-                    }
-                    else
-                    {
-                        data.Add("ShippedStatus", null);
-                    }
-                    await docRef.SetAsync(data);
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest("The order not exist");
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         // DELETE api/<OrdersController>/5
         [HttpDelete("{OrderId}")]
         public async Task<ActionResult> Delete(string OrderId)
@@ -568,10 +508,9 @@ namespace FPTUMerchAPI.Controllers
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
-                        { "Status", false}, //TRUE: Not cancelled, FALSE: cancelled
+                        { "Status", 4}, //Tình trạng đơn hàng: 1: Đang xác thực, 2: Đã xác nhận, 3: Đã giao hàng, 4: Huỷ đơn
                         { "PaidStatus", order.PaidStatus},
-                        { "Shipper", order.Shipper},
-                        { "ShippedStatus", order.ShippedStatus }
+                        { "Shipper", order.Shipper}
                     };
                     await docRef.SetAsync(data);
                     return Ok();

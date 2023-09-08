@@ -247,7 +247,6 @@ namespace FPTUMerchAPI.Controllers
                         { "Status", order.Status},
                         { "PaidStatus", order.PaidStatus },
                         { "Shipper", order.Shipper},
-                        { "ShippedStatus", order.ShippedStatus}
                     };
                     if (order.DiscountCodeID != null && order.DiscountCodeID != "" && order.DiscountCodeID.Length>0)
                     {
@@ -327,7 +326,6 @@ namespace FPTUMerchAPI.Controllers
                                     { "Status", order.Status},
                                     { "PaidStatus", order.PaidStatus },
                                     { "Shipper", order.Shipper},
-                                    { "ShippedStatus", order.ShippedStatus}
                                 };
                                 DocumentReference docRefOrderUpdate = database.Collection("Order").Document(docSnap.Id);
                                 await docRefOrderUpdate.SetAsync(orderUpdate);
@@ -434,7 +432,6 @@ namespace FPTUMerchAPI.Controllers
                                     { "Status", order.Status},
                                     { "PaidStatus", order.PaidStatus },
                                     { "Shipper", order.Shipper},
-                                    { "ShippedStatus", order.ShippedStatus}
                                 };
                                 DocumentReference docRefOrderUpdate = database.Collection("Order").Document(docSnap.Id);
                                 await docRefOrderUpdate.SetAsync(orderUpdate);

@@ -30,20 +30,18 @@ namespace FPTUMerchAPI.Model
         [FirestoreProperty]
         public string? Note { get; set; }
         [FirestoreProperty]
-        //Hình thức nhận hàng: 1. Tại quầy, 2: Shipping
+        //Hình thức nhận hàng: 1. Tại FPT, 2: Shipping
         public int EarningMethod { get; set; }
         [FirestoreProperty]
-        //Hình thức thanh toán: 1. Tiền mặt, 2: Chuyển khoản
+        //Hình thức thanh toán: 1. Momo, 2: Chuyển khoản ngân hàng
         public int? Payments { get; set; }
         [FirestoreProperty]
-        //TRUE: Not cancelled, FALSE: cancelled
-        public bool? Status { get; set; }
+        //Tình trạng đơn hàng: 1: Đang xác thực, 2: Đã xác nhận, 3: Đã giao hàng, 4: Huỷ đơn
+        public int? Status { get; set; }
         [FirestoreProperty]
         //TRUE: Already Paid, FALSE: Not Paid
         public bool? PaidStatus { get; set; }
         public string? Shipper { get; set; }
-        //TRUE: Already Shipped, FALSE: Not Shipped
-        public bool? ShippedStatus { get; set; }
         [FirestoreProperty]
         public List<OrderDetail> orderDetails { get; set; }
     }
