@@ -134,8 +134,8 @@ namespace FPTUMerchAPI.Controllers
                     {
                         Users user = docsnap.ConvertTo<Users>();
                         user.UserID = docsnap.Id;
-                        if (userCheck.Email.IndexOf(user.Email, StringComparison.OrdinalIgnoreCase) >= 0
-                            && userCheck.Password.IndexOf(user.Password, StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (userCheck.Email == user.Email
+                            && userCheck.Password == user.Password)
                             //Check ignore case
                         {
                             return Ok(user.ToJson());
