@@ -273,7 +273,7 @@ namespace FPTUMerchAPI.Controllers
                     /*ADD ORDER BASIC INFORMATION*/
                     Dictionary<string, object> data = new Dictionary<string, object>()
                     {
-                        { "DiscountCodeID", Order.DiscountCodeID},
+                        { "DiscountCodeID", Order.DiscountCodeID.ToUpper()},
                         { "OrdererName", Order.OrdererName},
                         { "OrdererPhoneNumber", Order.OrdererPhoneNumber},
                         { "OrdererEmail", Order.OrdererEmail},
