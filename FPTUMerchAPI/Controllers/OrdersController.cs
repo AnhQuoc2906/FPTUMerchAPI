@@ -243,7 +243,7 @@ namespace FPTUMerchAPI.Controllers
                     /*CHECK IF DISCOUNT CODE CORRECT*/
                     if (Order.DiscountCodeID != null && Order.DiscountCodeID != "" && Order.DiscountCodeID.Length != 0)
                     {
-                        DocumentReference docRefDiscountCode = database.Collection("DiscountCode").Document(Order.DiscountCodeID);
+                        DocumentReference docRefDiscountCode = database.Collection("DiscountCode").Document(Order.DiscountCodeID.ToUpper());
                         DocumentSnapshot docSnapDiscountCode = await docRefDiscountCode.GetSnapshotAsync();
                         if (!docSnapDiscountCode.Exists)
                         {
