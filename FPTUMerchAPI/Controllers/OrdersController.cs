@@ -300,7 +300,7 @@ namespace FPTUMerchAPI.Controllers
                         await coll.AddAsync(orderDetailList);
                         orderDetailList = new Dictionary<string, object>();
                     }
-                    return Ok();
+                    return Ok(documentID);
                 }
                 
             }
