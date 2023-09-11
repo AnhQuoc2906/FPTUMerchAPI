@@ -246,7 +246,7 @@ namespace FPTUMerchAPI.Controllers
                         { "Payments", order.Payments },
                         { "Status", order.Status},
                         { "PaidStatus", order.PaidStatus },
-                        { "Shipper", order.Shipper},
+                        { "Shipper", ""},
                     };
                     if (order.DiscountCodeID != null && order.DiscountCodeID != "" && order.DiscountCodeID.Length>0)
                     {

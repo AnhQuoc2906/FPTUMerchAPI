@@ -285,7 +285,7 @@ namespace FPTUMerchAPI.Controllers
                         { "Payments", Order.Payments },
                         { "Status", 1},
                         { "PaidStatus", false },
-                        { "Shipper", ""}
+                        { "Shipper", " "}
                     };
                     await docRef.SetAsync(data);
                     CollectionReference coll = docRef.Collection("OrderDetail");
