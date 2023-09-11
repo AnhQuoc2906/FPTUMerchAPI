@@ -41,6 +41,7 @@ namespace FPTUMerchAPI.Model
         [FirestoreProperty]
         //TRUE: Already Paid, FALSE: Not Paid
         public bool? PaidStatus { get; set; }
+        [FirestoreProperty]
         public string? Shipper { get; set; }
         [FirestoreProperty]
         public List<OrderDetail> orderDetails { get; set; }
