@@ -266,7 +266,7 @@ namespace FPTUMerchAPI.Controllers
                                     { "KPI", discountCode.KPI}
                                 };
                                 await docRefDiscountCode.SetAsync(updateDiscountCode);
-                                totalPrice = totalPrice * 9 / 10;
+                                totalPrice = totalPrice * 19 / 20;
                             }
                         }
                     }
@@ -330,6 +330,7 @@ namespace FPTUMerchAPI.Controllers
                     /*UPDATE ORDER BASIC DETAILS*/
                     Dictionary<string, object> data = new Dictionary<string, object>()
                     {
+                        { "DiscountCodeID", orderTotalPrice.DiscountCodeID.ToUpper()},
                         { "OrdererName", order.OrdererName},
                         { "OrdererPhoneNumber", order.OrdererPhoneNumber},
                         { "OrdererEmail", order.OrdererEmail},

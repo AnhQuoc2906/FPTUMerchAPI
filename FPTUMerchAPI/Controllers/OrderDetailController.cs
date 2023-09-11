@@ -250,7 +250,7 @@ namespace FPTUMerchAPI.Controllers
                     };
                     if (order.DiscountCodeID != null && order.DiscountCodeID != "" && order.DiscountCodeID.Length>0)
                     {
-                        totalPrice = totalPrice * 9 / 10;
+                        totalPrice = totalPrice * 19 / 20;
                     }
                     updateOrder.Add("TotalPrice", totalPrice);
                     await docRefOrderUpdate.SetAsync(updateOrder);
@@ -302,9 +302,9 @@ namespace FPTUMerchAPI.Controllers
                                 order.OrderID = docSnap.Id;
                                 if (order.DiscountCodeID.Length > 0)
                                 { //IF THERE IS DISCOUNT CODE
-                                    order.TotalPrice = (order.TotalPrice * 10 / 9 
+                                    order.TotalPrice = (order.TotalPrice * 20 / 19 
                                         - (product.Price * currentOrderDetail.Amount) 
-                                        + (product.Price * orderDetail.Amount)) * 9 / 10;
+                                        + (product.Price * orderDetail.Amount)) * 19 / 20;
                                 }
                                 else
                                 { //IF THERE IS NOT DISCOUNT CODE
@@ -412,7 +412,7 @@ namespace FPTUMerchAPI.Controllers
                                 order.OrderID = docSnap.Id;
                                 if(order.DiscountCodeID.Length>0)
                                 { //IF THERE IS DISCOUNT CODE
-                                    order.TotalPrice = (order.TotalPrice* 10 / 9 - product.Price * orderdetail.Amount) *9/10;
+                                    order.TotalPrice = (order.TotalPrice* 20 / 19 - product.Price * orderdetail.Amount) *19/20;
                                 }
                                 else
                                 { //IF THERE IS NOT DISCOUNT CODE
