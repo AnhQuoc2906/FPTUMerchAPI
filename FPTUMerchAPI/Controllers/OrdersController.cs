@@ -270,6 +270,11 @@ namespace FPTUMerchAPI.Controllers
                             }
                         }
                     }
+                    /*CHECK IF THE EARNING METHOD IS AT SCHOOL OR HOME*/
+                    if (Order.EarningMethod == 2)
+                    {
+                        totalPrice += 30000;
+                    }
                     /*ADD ORDER BASIC INFORMATION*/
                     Dictionary<string, object> data = new Dictionary<string, object>()
                     {
