@@ -24,7 +24,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order").OrderBy("CreateDate");
+                Query Qref = database.Collection("Order");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
@@ -64,7 +64,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order").OrderBy("CreateDate");
+                Query Qref = database.Collection("Order");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
@@ -103,7 +103,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 List<Orders> ordersList = new List<Orders>();
-                Query Qref = database.Collection("Order").OrderBy("CreateDate");
+                Query Qref = database.Collection("Order");
                 QuerySnapshot snap = await Qref.GetSnapshotAsync();
                 foreach (DocumentSnapshot docsnap in snap)
                 {
