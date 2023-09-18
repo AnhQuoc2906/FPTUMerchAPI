@@ -133,7 +133,8 @@ namespace FPTUMerchAPI.Controllers
                             { "ProductID", orderDetail.ProductID },
                             { "Amount", orderDetail.Amount },
                             { "Note", orderDetail.Note },
-                            { "CreateDate", specified.ToTimestamp() }
+                            { "CreateDate", specified.ToTimestamp() },
+                            { "UpdateDate", specified.ToTimestamp() }
                         };
                         Query qRefOrderDetail = database.Collection("Order").Document(OrderId).Collection("OrderDetail"); //Get OrderDetails by OrderID
                         QuerySnapshot qSnapOrderDetail = await qRefOrderDetail.GetSnapshotAsync();
@@ -241,6 +242,7 @@ namespace FPTUMerchAPI.Controllers
                         { "OrdererEmail", order.OrdererEmail},
                         { "DeliveryAddress", order.DeliveryAddress},
                         { "CreateDate", specified.ToTimestamp()},
+                        { "UpdateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
@@ -319,7 +321,8 @@ namespace FPTUMerchAPI.Controllers
                                     { "OrdererEmail", order.OrdererEmail},
                                     { "DeliveryAddress", order.DeliveryAddress},
                                     { "TotalPrice", order.TotalPrice},
-                                    { "CreateDate", specified.ToTimestamp()},
+                                    { "CreateDate", order.CreateDate},
+                                    { "UpdateDate", specified.ToTimestamp()},
                                     { "Note", order.Note },
                                     { "EarningMethod", order.EarningMethod},
                                     { "Payments", order.Payments },
@@ -351,7 +354,8 @@ namespace FPTUMerchAPI.Controllers
                         { "ProductID", od.ProductID },
                         { "Amount", orderDetail.Amount },
                         { "Note", orderDetail.Note},
-                        { "CreateDate", specified.ToTimestamp() }
+                        { "CreateDate",  od.CreateDate},
+                        { "UpdateDate", specified.ToTimestamp() }
                     };
                     await docRef.SetAsync(updateOrderDetail); 
                     return Ok();
@@ -425,7 +429,8 @@ namespace FPTUMerchAPI.Controllers
                                     { "OrdererEmail", order.OrdererEmail},
                                     { "DeliveryAddress", order.DeliveryAddress},
                                     { "TotalPrice", order.TotalPrice},
-                                    { "CreateDate", specified.ToTimestamp()},
+                                    { "CreateDate", order.CreateDate},
+                                    { "UpdateDate", specified.ToTimestamp()},
                                     { "Note", order.Note },
                                     { "EarningMethod", order.EarningMethod},
                                     { "Payments", order.Payments },

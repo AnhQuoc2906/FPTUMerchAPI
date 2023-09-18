@@ -285,6 +285,7 @@ namespace FPTUMerchAPI.Controllers
                         { "DeliveryAddress", Order.DeliveryAddress},
                         { "TotalPrice", totalPrice},
                         { "CreateDate", specified.ToTimestamp()},
+                        { "UpdateDate", specified.ToTimestamp()},
                         { "Note", Order.Note },
                         { "EarningMethod", Order.EarningMethod},
                         { "Payments", Order.Payments },
@@ -302,6 +303,7 @@ namespace FPTUMerchAPI.Controllers
                         orderDetailList.Add("Amount", item.Amount);
                         orderDetailList.Add("Note", item.Note);
                         orderDetailList.Add("CreateDate", specified.ToTimestamp());
+                        orderDetailList.Add("UpdateDate", specified.ToTimestamp());
                         await coll.AddAsync(orderDetailList);
                         orderDetailList = new Dictionary<string, object>();
                     }
@@ -341,7 +343,8 @@ namespace FPTUMerchAPI.Controllers
                         { "OrdererEmail", order.OrdererEmail},
                         { "DeliveryAddress", order.DeliveryAddress},
                         { "TotalPrice", orderTotalPrice.TotalPrice},
-                        { "CreateDate", specified.ToTimestamp()},
+                        { "CreateDate", orderTotalPrice.CreateDate},
+                        { "UpdateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
@@ -387,7 +390,8 @@ namespace FPTUMerchAPI.Controllers
                         { "OrdererEmail", order.OrdererEmail},
                         { "DeliveryAddress", order.DeliveryAddress},
                         { "TotalPrice", order.TotalPrice},
-                        { "CreateDate", specified.ToTimestamp()},
+                        { "CreateDate", order.CreateDate},
+                        { "UpdateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
@@ -432,7 +436,8 @@ namespace FPTUMerchAPI.Controllers
                         { "OrdererEmail", order.OrdererEmail},
                         { "DeliveryAddress", order.DeliveryAddress},
                         { "TotalPrice", order.TotalPrice},
-                        { "CreateDate", specified.ToTimestamp()},
+                        { "CreateDate", order.CreateDate},
+                        { "UpdateDate", specified.ToTimestamp()},
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
@@ -511,6 +516,7 @@ namespace FPTUMerchAPI.Controllers
                         { "DeliveryAddress", order.DeliveryAddress},
                         { "TotalPrice", order.TotalPrice},
                         { "CreateDate", order.CreateDate},
+                        { "UpdateDate", order.UpdateDate},
                         { "Note", order.Note },
                         { "EarningMethod", order.EarningMethod},
                         { "Payments", order.Payments },
