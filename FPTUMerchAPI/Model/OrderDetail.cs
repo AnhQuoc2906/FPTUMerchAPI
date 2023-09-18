@@ -25,5 +25,7 @@ namespace FPTUMerchAPI.Model
         public string? Note { get; set; }
         [FirestoreProperty]
         public DateTime? CreateDate { get; set; }
+        [FirestoreProperty]
+        public DateTime? UpdateDate { get; set; }
     }
 }

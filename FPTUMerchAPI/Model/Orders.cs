@@ -28,6 +28,8 @@ namespace FPTUMerchAPI.Model
         [FirestoreProperty]
         public DateTime? CreateDate { get; set; }
         [FirestoreProperty]
+        public DateTime? UpdateDate { get; set; }
+        [FirestoreProperty]
         public string? Note { get; set; }
         [FirestoreProperty]
         //Hình thức nhận hàng: 1. Tại FPT, 2: Shipping
