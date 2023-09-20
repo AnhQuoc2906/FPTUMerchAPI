@@ -185,6 +185,7 @@ namespace FPTUMerchAPI.Controllers
                 Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
                 FirestoreDb database = FirestoreDb.Create("fptumerch-abcde");
                 bool checkOrderID = false; // Check if order ID exist
+                bool checkDiscountCode = false; // Check if discount code exist
                 string documentID = "";
                 //CHECK IF NEW ORDER ID EXISTS
                 do
@@ -225,21 +226,6 @@ namespace FPTUMerchAPI.Controllers
                 }
                 else
                 {
-                    /*CALCULATE TOTAL PRICE OF ORDER AND IF PRODUCT EXISTS*/
-                    foreach (var item in Order.orderDetails)
-                    {
-                        DocumentReference docRefProduct = database.Collection("Product").Document(item.ProductID);
-                        DocumentSnapshot docSnapProduct = await docRefProduct.GetSnapshotAsync();
-                        if (docSnapProduct.Exists)
-                        {
-                            Product product = docSnapProduct.ConvertTo<Product>();
-                            totalPrice += product.Price * item.Amount;
-                        }
-                        else
-                        {
-                            return BadRequest("The product is not correct, please try again.");
-                        }
-                    }
                     /*CHECK IF DISCOUNT CODE CORRECT*/
                     if (Order.DiscountCodeID != null && Order.DiscountCodeID != "" && Order.DiscountCodeID.Length != 0)
                     {
@@ -266,10 +252,37 @@ namespace FPTUMerchAPI.Controllers
                                     { "KPI", discountCode.KPI}
                                 };
                                 await docRefDiscountCode.SetAsync(updateDiscountCode);
-                                totalPrice = totalPrice * 19 / 20;
+                                checkDiscountCode = true;
                             }
                         }
                     }
+                    /*CALCULATE TOTAL PRICE OF ORDER AND IF PRODUCT EXISTS*/
+                    foreach (var item in Order.orderDetails)
+                    {
+                        DocumentReference docRefProduct = database.Collection("Product").Document(item.ProductID);
+                        DocumentSnapshot docSnapProduct = await docRefProduct.GetSnapshotAsync();
+                        if (docSnapProduct.Exists)
+                        {
+                            Product product = docSnapProduct.ConvertTo<Product>();
+                            if((product.ProductName == "ÁO THUN FPTYOU" || product.ProductName == "COMBO FULL KIT") && checkDiscountCode == true)
+                            {
+                                totalPrice += (product.Price * item.Amount)*19/20;
+                            }
+                            else if((product.ProductName == "DÂY ĐEO THẺ" || product.ProductName == "VỚ PASSED") && checkDiscountCode == true)
+                            {
+                                totalPrice += product.Price * item.Amount;
+                            } else if(product.ProductName == "ÁO THUN FPTYOU" || product.ProductName == "COMBO FULL KIT"
+                                || product.ProductName == "DÂY ĐEO THẺ" || product.ProductName == "VỚ PASSED")
+                            {
+                                totalPrice += product.Price * item.Amount;
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest("The product is not correct, please try again.");
+                        }
+                    }
+                   
                     /*CHECK IF THE EARNING METHOD IS AT SCHOOL OR HOME*/
                     if (Order.EarningMethod == 2)
                     {
